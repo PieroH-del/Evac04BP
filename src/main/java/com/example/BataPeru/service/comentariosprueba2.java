@@ -1,4 +1,4 @@
 package com.example.BataPeru.service;
 
-public class comentarioservice {
+public class comentariosprueba2 {
 }
