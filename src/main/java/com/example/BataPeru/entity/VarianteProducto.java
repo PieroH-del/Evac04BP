@@ -16,7 +16,7 @@ public class VarianteProducto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "producto_id")
@@ -30,8 +30,6 @@ public class VarianteProducto {
     @JoinColumn(name = "color_id")
     private Color color;
 
-    @Column(name = "sku_variante")
-    private String skuVariante;
 
     @Column(name = "stock_cantidad")
     private Integer stockCantidad;

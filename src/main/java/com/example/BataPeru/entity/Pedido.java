@@ -18,7 +18,7 @@ public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
@@ -30,13 +30,11 @@ public class Pedido {
     private BigDecimal totalPagar;
 
     @Column(name = "direccion_envio_id")
-    private Integer direccionEnvioId;
+    private Long direccionEnvioId;
 
     @Column(name = "metodo_pago")
     private String metodoPago;
 
-    @Column(name = "id_transaccion")
-    private String idTransaccion;
 
     @Column(name = "fecha_pedido")
     private LocalDateTime fechaPedido;

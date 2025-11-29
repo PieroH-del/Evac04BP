@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "resenas")
+@Table(name = "comentarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Resena {
+public class Comentario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

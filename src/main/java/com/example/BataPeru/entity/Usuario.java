@@ -17,9 +17,9 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "contrasena_hash", nullable = false)
@@ -41,6 +41,6 @@ public class Usuario {
     private List<Pedido> pedidos;
 
     @OneToMany(mappedBy = "usuario")
-    private List<Resena> resenas;
+    private List<Comentario> comentarios;
 }
 

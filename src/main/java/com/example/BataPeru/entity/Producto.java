@@ -18,7 +18,7 @@ public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "marca_id")
@@ -34,25 +34,12 @@ public class Producto {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Column(name = "sku_base")
-    private String skuBase;
-
     @Column(name = "precio_regular", precision = 10, scale = 2)
     private BigDecimal precioRegular;
 
-    @Column(name = "precio_oferta", precision = 10, scale = 2)
-    private BigDecimal precioOferta;
-
     private String genero;
 
-    @Column(name = "material_capellada")
-    private String materialCapellada;
-
-    @Column(name = "material_forro")
-    private String materialForro;
-
-    @Column(name = "material_suela")
-    private String materialSuela;
+    private String material;
 
     private Boolean activo;
 
@@ -66,6 +53,6 @@ public class Producto {
     private List<ImagenProducto> imagenes;
 
     @OneToMany(mappedBy = "producto")
-    private List<Resena> resenas;
+    private List<Comentario> comentarios;
 }
 
