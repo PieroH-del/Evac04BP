@@ -7,6 +7,7 @@ import com.example.BataPeru.repository.MarcaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ public class MarcaService {
 
     public MarcaDTO crear(MarcaDTO marcaDTO) {
         Marca marca = marcaMapper.toEntity(marcaDTO);
+        marca.setFechaCreacion(LocalDateTime.now());
         Marca guardado = marcaRepository.save(marca);
         return marcaMapper.toDTO(guardado);
     }
