@@ -19,12 +19,14 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
     private final CategoriaMapper categoriaMapper;
 
+    @Transactional(readOnly = true)
     public List<CategoriaDTO> findAll() {
         return categoriaRepository.findAll().stream()
                 .map(categoriaMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<CategoriaDTO> findById(Long id) {
         return categoriaRepository.findById(id).map(categoriaMapper::toDTO);
     }
@@ -33,7 +35,14 @@ public class CategoriaService {
     public CategoriaDTO save(CategoriaDTO categoriaDTO) {
         Categoria categoria = categoriaMapper.toEntity(categoriaDTO);
         Categoria savedCategoria = categoriaRepository.save(categoria);
-        return categoriaMapper.toDTO(savedCategoria);
+
+        // Crear manualmente el DTO para evitar LazyInitializationException
+        CategoriaDTO resultado = new CategoriaDTO();
+        resultado.setId(savedCategoria.getId());
+        resultado.setNombre(savedCategoria.getNombre());
+        resultado.setProductosIds(List.of()); // Nueva categoría sin productos
+
+        return resultado;
     }
 
     @Transactional

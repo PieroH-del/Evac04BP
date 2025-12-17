@@ -22,6 +22,7 @@ public class TallaService {
     /**
      * Obtiene todas las tallas ordenadas por valor
      */
+    @Transactional(readOnly = true)
     public List<TallaDTO> obtenerTodasLasTallas() {
         return tallaRepository.findAllByOrderByValor()
                 .stream()
@@ -32,6 +33,7 @@ public class TallaService {
     /**
      * Obtiene una talla por su ID
      */
+    @Transactional(readOnly = true)
     public Optional<TallaDTO> obtenerTallaPorId(Long id) {
         return tallaRepository.findById(id)
                 .map(tallaMapper::toDTO);
@@ -40,6 +42,7 @@ public class TallaService {
     /**
      * Obtiene una talla por su valor exacto
      */
+    @Transactional(readOnly = true)
     public Optional<TallaDTO> obtenerTallaPorValor(String valor) {
         return tallaRepository.findByValor(valor)
                 .map(tallaMapper::toDTO);
@@ -48,6 +51,7 @@ public class TallaService {
     /**
      * Obtiene todas las tallas de una región específica
      */
+    @Transactional(readOnly = true)
     public List<TallaDTO> obtenerTallasPorRegion(String region) {
         return tallaRepository.findByRegionOrderByValor(region)
                 .stream()
@@ -58,6 +62,7 @@ public class TallaService {
     /**
      * Busca tallas por valor parcial (case-insensitive)
      */
+    @Transactional(readOnly = true)
     public List<TallaDTO> buscarTallasPorValor(String valor) {
         return tallaRepository.findByValorContainingIgnoreCase(valor)
                 .stream()
@@ -77,7 +82,15 @@ public class TallaService {
 
         Talla talla = tallaMapper.toEntity(tallaDTO);
         Talla saved = tallaRepository.save(talla);
-        return tallaMapper.toDTO(saved);
+
+        // Crear manualmente el DTO para evitar LazyInitializationException
+        TallaDTO resultado = new TallaDTO();
+        resultado.setId(saved.getId());
+        resultado.setValor(saved.getValor());
+        resultado.setRegion(saved.getRegion());
+        resultado.setVariantesIds(List.of());
+
+        return resultado;
     }
 
     /**

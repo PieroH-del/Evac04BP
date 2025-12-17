@@ -19,12 +19,14 @@ public class ColorService {
     private final ColorRepository colorRepository;
     private final ColorMapper colorMapper;
 
+    @Transactional(readOnly = true)
     public List<ColorDTO> findAll() {
         return colorRepository.findAll().stream()
                 .map(colorMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<ColorDTO> findById(Long id) {
         return colorRepository.findById(id).map(colorMapper::toDTO);
     }
@@ -33,7 +35,15 @@ public class ColorService {
     public ColorDTO save(ColorDTO colorDTO) {
         Color color = colorMapper.toEntity(colorDTO);
         Color savedColor = colorRepository.save(color);
-        return colorMapper.toDTO(savedColor);
+
+        // Crear manualmente el DTO para evitar LazyInitializationException
+        ColorDTO resultado = new ColorDTO();
+        resultado.setId(savedColor.getId());
+        resultado.setNombre(savedColor.getNombre());
+        resultado.setCodigoHex(savedColor.getCodigoHex());
+        resultado.setVariantesIds(List.of());
+
+        return resultado;
     }
 
     @Transactional
