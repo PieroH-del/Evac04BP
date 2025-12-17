@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "productos")
@@ -31,10 +30,13 @@ public class Producto {
     @Column(nullable = false)
     private String nombre;
 
+    @Column(name = "url_img", columnDefinition = "TEXT", nullable = false)
+    private String urlImg;
+
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Column(name = "precio_regular", precision = 10, scale = 2)
+    @Column(name = "precio_regular", precision = 10, scale = 2, nullable = false)
     private BigDecimal precioRegular;
 
     private String genero;
@@ -45,14 +47,5 @@ public class Producto {
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
-
-    @OneToMany(mappedBy = "producto")
-    private List<VarianteProducto> variantes;
-
-    @OneToMany(mappedBy = "producto")
-    private List<ImagenProducto> imagenes;
-
-    @OneToMany(mappedBy = "producto")
-    private List<Comentario> comentarios;
 }
 

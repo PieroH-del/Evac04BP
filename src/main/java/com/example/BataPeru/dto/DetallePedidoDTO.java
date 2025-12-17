@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class DetallePedidoDTO {
     private Long id;
     private Long pedidoId;
-    private Long varianteProductoId;
+    private Long productoId;
     private Integer cantidad;
     private BigDecimal precioUnitario;
 }

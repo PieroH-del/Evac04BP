@@ -21,7 +21,7 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final DetallePedidoRepository detallePedidoRepository;
-    private final VarianteProductoRepository varianteProductoRepository;
+    private final ProductoRepository productoRepository;
     private final UsuarioRepository usuarioRepository;
     private final PedidoMapper pedidoMapper;
 
@@ -42,23 +42,15 @@ public class PedidoService {
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
         for (DetallePedidoDTO detalleDTO : pedidoDTO.getDetalles()) {
-            VarianteProducto variante = varianteProductoRepository.findById(detalleDTO.getVarianteProductoId())
-                    .orElseThrow(() -> new RuntimeException("Variante de producto no encontrada"));
-
-            if (variante.getStockCantidad() < detalleDTO.getCantidad()) {
-                throw new RuntimeException("Stock insuficiente para el producto: " + variante.getProducto().getNombre());
-            }
-
-            // Descontar stock
-            variante.setStockCantidad(variante.getStockCantidad() - detalleDTO.getCantidad());
-            varianteProductoRepository.save(variante);
+            Producto producto = productoRepository.findById(detalleDTO.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
             DetallePedido detalle = new DetallePedido();
             detalle.setPedido(pedidoGuardado);
-            detalle.setVarianteProducto(variante);
+            detalle.setProducto(producto);
             detalle.setCantidad(detalleDTO.getCantidad());
-            detalle.setPrecioUnitario(variante.getProducto().getPrecioRegular()); // Usar el precio del producto
-            
+            detalle.setPrecioUnitario(producto.getPrecioRegular());
+
             detallePedidoRepository.save(detalle);
 
             total = total.add(detalle.getPrecioUnitario().multiply(new BigDecimal(detalle.getCantidad())));

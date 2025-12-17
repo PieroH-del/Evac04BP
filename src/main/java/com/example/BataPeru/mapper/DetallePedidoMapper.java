@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 public interface DetallePedidoMapper {
 
     @Mapping(source = "pedido.id", target = "pedidoId")
-    @Mapping(source = "varianteProducto.id", target = "varianteProductoId")
+    @Mapping(source = "producto.id", target = "productoId")
     DetallePedidoDTO toDTO(DetallePedido entity);
 
     @Mapping(target = "pedido", ignore = true)
-    @Mapping(target = "varianteProducto", ignore = true)
+    @Mapping(target = "producto", ignore = true)
     DetallePedido toEntity(DetallePedidoDTO dto);
 }
