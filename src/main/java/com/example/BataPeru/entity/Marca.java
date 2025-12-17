@@ -30,7 +30,7 @@ public class Marca {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    @OneToMany(mappedBy = "marca")
+    @OneToMany(mappedBy = "marca", fetch = FetchType.LAZY)
     private List<Producto> productos;
 }
 
