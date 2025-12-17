@@ -3,46 +3,31 @@ package com.example.BataPeru.mapper;
 import com.example.BataPeru.dto.PedidoDTO;
 import com.example.BataPeru.entity.DetallePedido;
 import com.example.BataPeru.entity.Pedido;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class PedidoMapper {
+@Mapper(componentModel = "spring")
+public interface PedidoMapper {
 
-    public PedidoDTO toDTO(Pedido entity) {
-        if (entity == null) return null;
+    @Mapping(source = "usuario.id", target = "usuarioId")
+    @Mapping(source = "detalles", target = "detallesIds", qualifiedByName = "detallesToIds")
+    @Mapping(target = "detalles", ignore = true) // Ignorar este campo en la conversión a DTO
+    PedidoDTO toDTO(Pedido entity);
 
-        PedidoDTO dto = new PedidoDTO();
-        dto.setId(entity.getId());
-        dto.setUsuarioId(entity.getUsuario() != null ? entity.getUsuario().getId() : null);
-        dto.setEstado(entity.getEstado());
-        dto.setTotalPagar(entity.getTotalPagar());
-        dto.setDireccionEnvioId(entity.getDireccionEnvioId());
-        dto.setMetodoPago(entity.getMetodoPago());
-        dto.setFechaPedido(entity.getFechaPedido());
+    @Mapping(target = "usuario", ignore = true)
+    Pedido toEntity(PedidoDTO dto);
 
-        if (entity.getDetalles() != null) {
-            dto.setDetallesIds(entity.getDetalles().stream()
-                    .map(DetallePedido::getId)
-                    .collect(Collectors.toList()));
+    @Named("detallesToIds")
+    default List<Long> detallesToIds(List<DetallePedido> detalles) {
+        if (detalles == null) {
+            return null;
         }
-
-        return dto;
-    }
-
-    public Pedido toEntity(PedidoDTO dto) {
-        if (dto == null) return null;
-
-        Pedido entity = new Pedido();
-        entity.setId(dto.getId());
-        entity.setEstado(dto.getEstado());
-        entity.setTotalPagar(dto.getTotalPagar());
-        entity.setDireccionEnvioId(dto.getDireccionEnvioId());
-        entity.setMetodoPago(dto.getMetodoPago());
-        entity.setFechaPedido(dto.getFechaPedido());
-
-        return entity;
+        return detalles.stream()
+                .map(DetallePedido::getId)
+                .collect(Collectors.toList());
     }
 }
-

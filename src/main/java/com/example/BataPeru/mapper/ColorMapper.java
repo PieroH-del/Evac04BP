@@ -3,39 +3,28 @@ package com.example.BataPeru.mapper;
 import com.example.BataPeru.dto.ColorDTO;
 import com.example.BataPeru.entity.Color;
 import com.example.BataPeru.entity.VarianteProducto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class ColorMapper {
+@Mapper(componentModel = "spring")
+public interface ColorMapper {
 
-    public ColorDTO toDTO(Color entity) {
-        if (entity == null) return null;
+    @Mapping(source = "variantes", target = "variantesIds", qualifiedByName = "variantesToIds")
+    ColorDTO toDTO(Color entity);
 
-        ColorDTO dto = new ColorDTO();
-        dto.setId(entity.getId());
-        dto.setNombre(entity.getNombre());
-        dto.setCodigoHex(entity.getCodigoHex());
+    Color toEntity(ColorDTO dto);
 
-        if (entity.getVariantes() != null) {
-            dto.setVariantesIds(entity.getVariantes().stream()
-                    .map(VarianteProducto::getId)
-                    .collect(Collectors.toList()));
+    @Named("variantesToIds")
+    default List<Long> variantesToIds(List<VarianteProducto> variantes) {
+        if (variantes == null) {
+            return null;
         }
-
-        return dto;
-    }
-
-    public Color toEntity(ColorDTO dto) {
-        if (dto == null) return null;
-
-        Color entity = new Color();
-        entity.setId(dto.getId());
-        entity.setNombre(dto.getNombre());
-        entity.setCodigoHex(dto.getCodigoHex());
-
-        return entity;
+        return variantes.stream()
+                .map(VarianteProducto::getId)
+                .collect(Collectors.toList());
     }
 }
-

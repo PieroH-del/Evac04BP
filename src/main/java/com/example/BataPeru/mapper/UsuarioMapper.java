@@ -1,43 +1,42 @@
 package com.example.BataPeru.mapper;
+
 import com.example.BataPeru.dto.UsuarioDTO;
 import com.example.BataPeru.entity.Direccion;
 import com.example.BataPeru.entity.Pedido;
 import com.example.BataPeru.entity.Usuario;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
 import java.util.stream.Collectors;
-@Component
-public class UsuarioMapper {
-    public UsuarioDTO toDTO(Usuario entity) {
-        if (entity == null) return null;
-        UsuarioDTO dto = new UsuarioDTO();
-        dto.setId(entity.getId());
-        dto.setEmail(entity.getEmail());
-        dto.setNombres(entity.getNombres());
-        dto.setApellidos(entity.getApellidos());
-        dto.setTelefono(entity.getTelefono());
-        dto.setFechaRegistro(entity.getFechaRegistro());
-        if (entity.getDirecciones() != null) {
-            dto.setDireccionesIds(entity.getDirecciones().stream()
-                    .map(Direccion::getId)
-                    .collect(Collectors.toList()));
+
+@Mapper(componentModel = "spring")
+public interface UsuarioMapper {
+
+    @Mapping(source = "direcciones", target = "direccionesIds", qualifiedByName = "direccionesToIds")
+    @Mapping(source = "pedidos", target = "pedidosIds", qualifiedByName = "pedidosToIds")
+    UsuarioDTO toDTO(Usuario entity);
+
+    Usuario toEntity(UsuarioDTO dto);
+
+    @Named("direccionesToIds")
+    default List<Long> direccionesToIds(List<Direccion> direcciones) {
+        if (direcciones == null) {
+            return null;
         }
-        if (entity.getPedidos() != null) {
-            dto.setPedidosIds(entity.getPedidos().stream()
-                    .map(Pedido::getId)
-                    .collect(Collectors.toList()));
-        }
-        return dto;
+        return direcciones.stream()
+                .map(Direccion::getId)
+                .collect(Collectors.toList());
     }
-    public Usuario toEntity(UsuarioDTO dto) {
-        if (dto == null) return null;
-        Usuario entity = new Usuario();
-        entity.setId(dto.getId());
-        entity.setEmail(dto.getEmail());
-        entity.setNombres(dto.getNombres());
-        entity.setApellidos(dto.getApellidos());
-        entity.setTelefono(dto.getTelefono());
-        entity.setFechaRegistro(dto.getFechaRegistro());
-        return entity;
+
+    @Named("pedidosToIds")
+    default List<Long> pedidosToIds(List<Pedido> pedidos) {
+        if (pedidos == null) {
+            return null;
+        }
+        return pedidos.stream()
+                .map(Pedido::getId)
+                .collect(Collectors.toList());
     }
 }
-

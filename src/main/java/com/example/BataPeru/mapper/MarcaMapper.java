@@ -3,43 +3,28 @@ package com.example.BataPeru.mapper;
 import com.example.BataPeru.dto.MarcaDTO;
 import com.example.BataPeru.entity.Marca;
 import com.example.BataPeru.entity.Producto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class MarcaMapper {
+@Mapper(componentModel = "spring")
+public interface MarcaMapper {
 
-    public MarcaDTO toDTO(Marca entity) {
-        if (entity == null) return null;
+    @Mapping(source = "productos", target = "productosIds", qualifiedByName = "productosToIds")
+    MarcaDTO toDTO(Marca entity);
 
-        MarcaDTO dto = new MarcaDTO();
-        dto.setId(entity.getId());
-        dto.setNombre(entity.getNombre());
-        dto.setLogoUrl(entity.getLogoUrl());
-        dto.setActivo(entity.getActivo());
-        dto.setFechaCreacion(entity.getFechaCreacion());
+    Marca toEntity(MarcaDTO dto);
 
-        if (entity.getProductos() != null) {
-            dto.setProductosIds(entity.getProductos().stream()
-                    .map(Producto::getId)
-                    .collect(Collectors.toList()));
+    @Named("productosToIds")
+    default List<Long> productosToIds(List<Producto> productos) {
+        if (productos == null) {
+            return null;
         }
-
-        return dto;
-    }
-
-    public Marca toEntity(MarcaDTO dto) {
-        if (dto == null) return null;
-
-        Marca entity = new Marca();
-        entity.setId(dto.getId());
-        entity.setNombre(dto.getNombre());
-        entity.setLogoUrl(dto.getLogoUrl());
-        entity.setActivo(dto.getActivo());
-        entity.setFechaCreacion(dto.getFechaCreacion());
-
-        return entity;
+        return productos.stream()
+                .map(Producto::getId)
+                .collect(Collectors.toList());
     }
 }
-

@@ -2,32 +2,19 @@ package com.example.BataPeru.mapper;
 
 import com.example.BataPeru.dto.VarianteProductoDTO;
 import com.example.BataPeru.entity.VarianteProducto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class VarianteProductoMapper {
+@Mapper(componentModel = "spring")
+public interface VarianteProductoMapper {
 
-    public VarianteProductoDTO toDTO(VarianteProducto entity) {
-        if (entity == null) return null;
+    @Mapping(source = "producto.id", target = "productoId")
+    @Mapping(source = "talla.id", target = "tallaId")
+    @Mapping(source = "color.id", target = "colorId")
+    VarianteProductoDTO toDTO(VarianteProducto entity);
 
-        VarianteProductoDTO dto = new VarianteProductoDTO();
-        dto.setId(entity.getId());
-        dto.setProductoId(entity.getProducto() != null ? entity.getProducto().getId() : null);
-        dto.setTallaId(entity.getTalla() != null ? entity.getTalla().getId() : null);
-        dto.setColorId(entity.getColor() != null ? entity.getColor().getId() : null);
-        dto.setStockCantidad(entity.getStockCantidad());
-
-        return dto;
-    }
-
-    public VarianteProducto toEntity(VarianteProductoDTO dto) {
-        if (dto == null) return null;
-
-        VarianteProducto entity = new VarianteProducto();
-        entity.setId(dto.getId());
-        entity.setStockCantidad(dto.getStockCantidad());
-
-        return entity;
-    }
+    @Mapping(target = "producto", ignore = true)
+    @Mapping(target = "talla", ignore = true)
+    @Mapping(target = "color", ignore = true)
+    VarianteProducto toEntity(VarianteProductoDTO dto);
 }
-

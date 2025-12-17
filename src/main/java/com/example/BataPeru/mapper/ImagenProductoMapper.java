@@ -1,24 +1,18 @@
 package com.example.BataPeru.mapper;
+
 import com.example.BataPeru.dto.ImagenProductoDTO;
 import com.example.BataPeru.entity.ImagenProducto;
-import org.springframework.stereotype.Component;
-@Component
-public class ImagenProductoMapper {
-    public ImagenProductoDTO toDTO(ImagenProducto entity) {
-        if (entity == null) return null;
-        ImagenProductoDTO dto = new ImagenProductoDTO();
-        dto.setId(entity.getId());
-        dto.setProductoId(entity.getProducto() != null ? entity.getProducto().getId() : null);
-        dto.setColorId(entity.getColor() != null ? entity.getColor().getId() : null);
-        dto.setUrlImagen(entity.getUrlImagen());
-        return dto;
-    }
-    public ImagenProducto toEntity(ImagenProductoDTO dto) {
-        if (dto == null) return null;
-        ImagenProducto entity = new ImagenProducto();
-        entity.setId(dto.getId());
-        entity.setUrlImagen(dto.getUrlImagen());
-        return entity;
-    }
-}
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
+@Mapper(componentModel = "spring")
+public interface ImagenProductoMapper {
+
+    @Mapping(source = "producto.id", target = "productoId")
+    @Mapping(source = "color.id", target = "colorId")
+    ImagenProductoDTO toDTO(ImagenProducto entity);
+
+    @Mapping(target = "producto", ignore = true)
+    @Mapping(target = "color", ignore = true)
+    ImagenProducto toEntity(ImagenProductoDTO dto);
+}

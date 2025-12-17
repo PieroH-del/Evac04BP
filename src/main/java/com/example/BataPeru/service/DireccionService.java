@@ -5,6 +5,7 @@ import com.example.BataPeru.entity.Direccion;
 import com.example.BataPeru.entity.Usuario;
 import com.example.BataPeru.mapper.DireccionMapper;
 import com.example.BataPeru.repository.DireccionRepository;
+import com.example.BataPeru.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class DireccionService {
 
     private final DireccionRepository direccionRepository;
+    private final UsuarioRepository usuarioRepository;
     private final DireccionMapper direccionMapper;
 
     public List<DireccionDTO> obtenerDireccionesPorUsuario(Long usuarioId) {
@@ -26,47 +28,27 @@ public class DireccionService {
                 .map(direccionMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
-    public Optional<DireccionDTO> obtenerDireccionPrincipal(Long usuarioId) {
-        return direccionRepository.findByUsuarioIdAndEsPrincipalTrue(usuarioId)
-                .map(direccionMapper::toDTO);
-    }
-
-    public Optional<DireccionDTO> obtenerDireccionPorId(Long id) {
-        return direccionRepository.findById(id)
-                .map(direccionMapper::toDTO);
-    }
-
-    public List<DireccionDTO> obtenerDireccionesPorCiudad(Long usuarioId, String ciudad) {
-        return direccionRepository.findByUsuarioIdAndCiudad(usuarioId, ciudad)
-                .stream()
-                .map(direccionMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<DireccionDTO> obtenerDireccionesPorProvincia(Long usuarioId, String provincia) {
-        return direccionRepository.findByUsuarioIdAndProvincia(usuarioId, provincia)
-                .stream()
-                .map(direccionMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
+    
     @Transactional
-    public DireccionDTO crearDireccion(DireccionDTO direccionDTO, Usuario usuario) {
+    public DireccionDTO crearDireccion(DireccionDTO direccionDTO) {
+        Usuario usuario = usuarioRepository.findById(direccionDTO.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado para crear la dirección"));
+
         Direccion direccion = direccionMapper.toEntity(direccionDTO);
         direccion.setUsuario(usuario);
 
-        if (direccion.getEsPrincipal() == null) {
-            boolean tieneEnPrincipal = direccionRepository.findByUsuarioIdAndEsPrincipalTrue(usuario.getId()).isPresent();
-            direccion.setEsPrincipal(!tieneEnPrincipal);
-        }
-
+        // Lógica para la dirección principal
         if (Boolean.TRUE.equals(direccion.getEsPrincipal())) {
             direccionRepository.findByUsuarioIdAndEsPrincipalTrue(usuario.getId())
                     .ifPresent(d -> {
                         d.setEsPrincipal(false);
                         direccionRepository.save(d);
                     });
+        } else {
+            // Si no hay otra dirección principal, esta se convierte en la principal
+            if (!direccionRepository.existsByUsuarioIdAndEsPrincipalTrue(usuario.getId())) {
+                direccion.setEsPrincipal(true);
+            }
         }
 
         Direccion saved = direccionRepository.save(direccion);
@@ -75,39 +57,23 @@ public class DireccionService {
 
     @Transactional
     public DireccionDTO actualizarDireccion(Long id, DireccionDTO direccionDTO) {
-        Optional<Direccion> direccionOpt = direccionRepository.findById(id);
+        Direccion direccion = direccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dirección no encontrada con ID: " + id));
 
-        if (direccionOpt.isEmpty()) {
-            throw new RuntimeException("Dirección no encontrada con ID: " + id);
-        }
+        // Actualizar campos
+        direccion.setDireccionCalle(direccionDTO.getDireccionCalle());
+        direccion.setCiudad(direccionDTO.getCiudad());
+        direccion.setProvincia(direccionDTO.getProvincia());
+        direccion.setCodigoPostal(direccionDTO.getCodigoPostal());
+        direccion.setPais(direccionDTO.getPais());
 
-        Direccion direccion = direccionOpt.get();
-
-        if (direccionDTO.getDireccionCalle() != null) {
-            direccion.setDireccionCalle(direccionDTO.getDireccionCalle());
-        }
-        if (direccionDTO.getCiudad() != null) {
-            direccion.setCiudad(direccionDTO.getCiudad());
-        }
-        if (direccionDTO.getProvincia() != null) {
-            direccion.setProvincia(direccionDTO.getProvincia());
-        }
-        if (direccionDTO.getCodigoPostal() != null) {
-            direccion.setCodigoPostal(direccionDTO.getCodigoPostal());
-        }
-        if (direccionDTO.getPais() != null) {
-            direccion.setPais(direccionDTO.getPais());
-        }
-
-        if (Boolean.TRUE.equals(direccionDTO.getEsPrincipal()) && !Boolean.TRUE.equals(direccion.getEsPrincipal())) {
+        if (Boolean.TRUE.equals(direccionDTO.getEsPrincipal()) && !direccion.getEsPrincipal()) {
             direccionRepository.findByUsuarioIdAndEsPrincipalTrue(direccion.getUsuario().getId())
                     .ifPresent(d -> {
                         d.setEsPrincipal(false);
                         direccionRepository.save(d);
                     });
             direccion.setEsPrincipal(true);
-        } else if (Boolean.FALSE.equals(direccionDTO.getEsPrincipal())) {
-            direccion.setEsPrincipal(false);
         }
 
         Direccion updated = direccionRepository.save(direccion);
@@ -116,31 +82,29 @@ public class DireccionService {
 
     @Transactional
     public void eliminarDireccion(Long id) {
-        direccionRepository.findById(id).ifPresentOrElse(
-                direccion -> {
-                    if (Boolean.TRUE.equals(direccion.getEsPrincipal())) {
-                        direccionRepository.findByUsuarioId(direccion.getUsuario().getId())
-                                .stream()
-                                .filter(d -> !d.getId().equals(id))
-                                .findFirst()
-                                .ifPresent(d -> {
-                                    d.setEsPrincipal(true);
-                                    direccionRepository.save(d);
-                                });
-                    }
-                    direccionRepository.deleteById(id);
-                },
-                () -> {
-                    throw new RuntimeException("Dirección no encontrada con ID: " + id);
-                }
-        );
+        Direccion direccion = direccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
+        
+        direccionRepository.delete(direccion);
+
+        // Si la dirección eliminada era la principal, asignar una nueva
+        if (Boolean.TRUE.equals(direccion.getEsPrincipal())) {
+            direccionRepository.findByUsuarioId(direccion.getUsuario().getId()).stream().findFirst()
+                    .ifPresent(d -> {
+                        d.setEsPrincipal(true);
+                        direccionRepository.save(d);
+                    });
+        }
+    }
+    
+    // Otros métodos que ya estaban bien
+    public Optional<DireccionDTO> obtenerDireccionPrincipal(Long usuarioId) {
+        return direccionRepository.findByUsuarioIdAndEsPrincipalTrue(usuarioId)
+                .map(direccionMapper::toDTO);
     }
 
-    public boolean usuarioTieneDirecciones(Long usuarioId) {
-        return direccionRepository.existsByUsuarioId(usuarioId);
-    }
-
-    public Long contarDireccionesPorUsuario(Long usuarioId) {
-        return (long) direccionRepository.findByUsuarioId(usuarioId).size();
+    public Optional<DireccionDTO> obtenerDireccionPorId(Long id) {
+        return direccionRepository.findById(id)
+                .map(direccionMapper::toDTO);
     }
 }

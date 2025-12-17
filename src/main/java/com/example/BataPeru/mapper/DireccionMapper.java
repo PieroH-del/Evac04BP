@@ -2,40 +2,15 @@ package com.example.BataPeru.mapper;
 
 import com.example.BataPeru.dto.DireccionDTO;
 import com.example.BataPeru.entity.Direccion;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class DireccionMapper {
+@Mapper(componentModel = "spring")
+public interface DireccionMapper {
 
-    public DireccionDTO toDTO(Direccion entity) {
-        if (entity == null) return null;
+    @Mapping(source = "usuario.id", target = "usuarioId")
+    DireccionDTO toDTO(Direccion entity);
 
-        DireccionDTO dto = new DireccionDTO();
-        dto.setId(entity.getId());
-        dto.setUsuarioId(entity.getUsuario() != null ? entity.getUsuario().getId() : null);
-        dto.setDireccionCalle(entity.getDireccionCalle());
-        dto.setCiudad(entity.getCiudad());
-        dto.setProvincia(entity.getProvincia());
-        dto.setCodigoPostal(entity.getCodigoPostal());
-        dto.setPais(entity.getPais());
-        dto.setEsPrincipal(entity.getEsPrincipal());
-
-        return dto;
-    }
-
-    public Direccion toEntity(DireccionDTO dto) {
-        if (dto == null) return null;
-
-        Direccion entity = new Direccion();
-        entity.setId(dto.getId());
-        entity.setDireccionCalle(dto.getDireccionCalle());
-        entity.setCiudad(dto.getCiudad());
-        entity.setProvincia(dto.getProvincia());
-        entity.setCodigoPostal(dto.getCodigoPostal());
-        entity.setPais(dto.getPais());
-        entity.setEsPrincipal(dto.getEsPrincipal());
-
-        return entity;
-    }
+    @Mapping(target = "usuario", ignore = true)
+    Direccion toEntity(DireccionDTO dto);
 }
-

@@ -21,7 +21,7 @@ public class ProductoDTO {
     private String genero;
     private String material;
     private Boolean activo;
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaCreacion=LocalDateTime.now();
     private List<Long> variantesIds;
     private List<Long> imagenesIds;
 }
