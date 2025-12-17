@@ -41,19 +41,35 @@ public class UsuarioService {
         }
 
         Usuario nuevoUsuario = usuarioRepository.save(usuario);
-        return usuarioMapper.toDTO(nuevoUsuario);
+
+        // Crear manualmente el DTO para evitar LazyInitializationException
+        UsuarioDTO resultado = new UsuarioDTO();
+        resultado.setId(nuevoUsuario.getId());
+        resultado.setEmail(nuevoUsuario.getEmail());
+        resultado.setContrasenaHash(nuevoUsuario.getContrasenaHash());
+        resultado.setNombres(nuevoUsuario.getNombres());
+        resultado.setApellidos(nuevoUsuario.getApellidos());
+        resultado.setTelefono(nuevoUsuario.getTelefono());
+        resultado.setFechaRegistro(nuevoUsuario.getFechaRegistro());
+        resultado.setDireccionesIds(List.of());
+        resultado.setPedidosIds(List.of());
+
+        return resultado;
     }
 
+    @Transactional(readOnly = true)
     public Optional<UsuarioDTO> login(String email, String password) {
         // La validación de contraseña se hace directamente en la consulta
         return usuarioRepository.findByEmailAndContrasenaHash(email, password)
                 .map(usuarioMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public Optional<UsuarioDTO> findById(Long id) {
         return usuarioRepository.findById(id).map(usuarioMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> findAll() {
         return usuarioRepository.findAll().stream()
                 .map(usuarioMapper::toDTO)
@@ -71,6 +87,8 @@ public class UsuarioService {
         // No se debería poder cambiar el email o la contraseña desde un update genérico
         
         Usuario updatedUsuario = usuarioRepository.save(usuario);
+
+        // Usar el mapper dentro de la transacción para evitar LazyInitializationException
         return usuarioMapper.toDTO(updatedUsuario);
     }
 
