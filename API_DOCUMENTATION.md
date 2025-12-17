@@ -159,7 +159,25 @@ Lista productos de un género específico (HOMBRE, MUJER, UNISEX, NIÑO, NIÑA).
 *   **Nota:** La búsqueda es case-insensitive (puede ser "hombre", "Hombre", "HOMBRE")
 *   **Respuesta (200 OK):** Lista de objetos `ProductoDTO` filtrados por género.
 
-### 5. Crear Producto (Admin)
+### 5. Filtrar por Marca
+Lista productos de una marca específica.
+
+*   **Método:** `GET`
+*   **Endpoint:** `/productos/marca/{marcaId}`
+*   **URL completa:** `http://localhost:8081/api/productos/marca/1`
+*   **Ejemplo:** `/productos/marca/2`
+*   **Respuesta (200 OK):** Lista de objetos `ProductoDTO` de la marca especificada.
+
+### 6. Filtrar por Marca y Categoría
+Lista productos que pertenecen a una marca Y categoría específicas.
+
+*   **Método:** `GET`
+*   **Endpoint:** `/productos/marca/{marcaId}/categoria/{categoriaId}`
+*   **URL completa:** `http://localhost:8081/api/productos/marca/1/categoria/2`
+*   **Ejemplo:** `/productos/marca/1/categoria/3`
+*   **Respuesta (200 OK):** Lista de objetos `ProductoDTO` filtrados por marca y categoría.
+
+### 7. Crear Producto (Admin)
 *   **Método:** `POST`
 *   **Endpoint:** `/productos`
 *   **Body (JSON):**
@@ -176,6 +194,14 @@ Lista productos de un género específico (HOMBRE, MUJER, UNISEX, NIÑO, NIÑA).
       "categoriaId": 3
     }
     ```
+
+### 8. Actualizar Producto (Admin)
+*   **Método:** `PUT`
+*   **Endpoint:** `/productos/{id}`
+
+### 9. Eliminar Producto (Admin)
+*   **Método:** `DELETE`
+*   **Endpoint:** `/productos/{id}`
 
 ---
 
@@ -424,7 +450,12 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
    - Búsqueda case-insensitive (acepta HOMBRE, hombre, Hombre, etc.)
    - Géneros válidos: HOMBRE, MUJER, UNISEX, NIÑO, NIÑA
 
-3. **Mejoras en el Manejo de Errores:**
+3. **Nuevos Endpoints - Filtrado de Productos por Marca:**
+   - `GET /productos/marca/{marcaId}` - Filtra productos por marca
+   - `GET /productos/marca/{marcaId}/categoria/{categoriaId}` - Filtra por marca Y categoría
+   - Permite búsquedas combinadas para mejor experiencia de usuario
+
+4. **Mejoras en el Manejo de Errores:**
    - Respuestas JSON estructuradas para todos los errores
    - Incluye timestamp, status, error type, message, path y details
    - Manejo específico para:
@@ -433,12 +464,12 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
      - `NullPointerException` (500) - Valores nulos inesperados
      - `Exception` genérica (500) - Otros errores
 
-4. **Validaciones Mejoradas:**
+5. **Validaciones Mejoradas:**
    - Validación de nombre obligatorio en `MarcaController`
    - Logging detallado en `MarcaService` para diagnóstico
    - Valor por defecto `true` para campo `activo` si es null
 
-5. **Ejemplos de Respuestas de Error:**
+6. **Ejemplos de Respuestas de Error:**
    ```json
    {
      "timestamp": "2025-12-17T07:57:08.192557879",

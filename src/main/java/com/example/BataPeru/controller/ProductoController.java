@@ -32,6 +32,18 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.findByCategoria(categoriaId));
     }
 
+    @GetMapping("/marca/{marcaId}")
+    public ResponseEntity<List<ProductoDTO>> listarProductosPorMarca(@PathVariable Long marcaId) {
+        return ResponseEntity.ok(productoService.findByMarca(marcaId));
+    }
+
+    @GetMapping("/marca/{marcaId}/categoria/{categoriaId}")
+    public ResponseEntity<List<ProductoDTO>> listarProductosPorMarcaYCategoria(
+            @PathVariable Long marcaId,
+            @PathVariable Long categoriaId) {
+        return ResponseEntity.ok(productoService.findByMarcaAndCategoria(marcaId, categoriaId));
+    }
+
     @GetMapping("/genero/{genero}")
     public ResponseEntity<List<ProductoDTO>> listarProductosPorGenero(@PathVariable String genero) {
         return ResponseEntity.ok(productoService.findByGenero(genero));

@@ -45,6 +45,20 @@ public class ProductoService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductoDTO> findByMarca(Long marcaId) {
+        return repository.findByMarcaId(marcaId).stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> findByMarcaAndCategoria(Long marcaId, Long categoriaId) {
+        return repository.findByMarcaIdAndCategoriaId(marcaId, categoriaId).stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductoDTO> findByGenero(String genero) {
         return repository.findByGeneroIgnoreCase(genero).stream()
                 .map(mapper::toDTO)
