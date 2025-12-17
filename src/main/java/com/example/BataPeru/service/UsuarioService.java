@@ -21,17 +21,32 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioDTO registrarUsuario(UsuarioDTO usuarioDTO) {
+        // Validación de campos requeridos
+        if (usuarioDTO.getEmail() == null || usuarioDTO.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("El email es obligatorio.");
+        }
+        if (usuarioDTO.getContrasenaHash() == null || usuarioDTO.getContrasenaHash().trim().isEmpty()) {
+            throw new RuntimeException("La contraseña es obligatoria.");
+        }
+
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
             throw new RuntimeException("El correo electrónico ya está en uso.");
         }
+
         Usuario usuario = usuarioMapper.toEntity(usuarioDTO);
+
+        // Verificación adicional antes de guardar
+        if (usuario.getContrasenaHash() == null) {
+            throw new RuntimeException("Error: La contraseña no se mapeó correctamente.");
+        }
+
         Usuario nuevoUsuario = usuarioRepository.save(usuario);
         return usuarioMapper.toDTO(nuevoUsuario);
     }
 
     public Optional<UsuarioDTO> login(String email, String password) {
         // La validación de contraseña se hace directamente en la consulta
-        return usuarioRepository.findByEmailAndPassword(email, password)
+        return usuarioRepository.findByEmailAndContrasenaHash(email, password)
                 .map(usuarioMapper::toDTO);
     }
 

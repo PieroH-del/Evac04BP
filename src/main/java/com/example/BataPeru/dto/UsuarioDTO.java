@@ -10,6 +10,7 @@ import java.util.List;
 public class UsuarioDTO {
     private Long id;
     private String email;
+    private String contrasenaHash;
     private String nombres;
     private String apellidos;
     private String telefono;

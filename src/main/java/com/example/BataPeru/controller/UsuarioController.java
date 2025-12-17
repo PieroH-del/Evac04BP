@@ -17,26 +17,27 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping("/registro")
-    public ResponseEntity<UsuarioDTO> registrarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         try {
             UsuarioDTO nuevoUsuario = usuarioService.registrarUsuario(usuarioDTO);
             return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            // Devolver un cuerpo vacío con el estado de error
-            return ResponseEntity.badRequest().build();
+            // Devolver el mensaje de error para debugging
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         return usuarioService.login(loginRequest.getEmail(), loginRequest.getPassword())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Credenciales inválidas"));
     }
     
     @Getter
     @Setter
-    private static class LoginRequest {
+    public static class LoginRequest {
         private String email;
         private String password;
     }

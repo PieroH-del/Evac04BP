@@ -2,7 +2,33 @@
 
 Esta documentación detalla los endpoints disponibles en el backend para el clon de la tienda Bata.
 
-**Base URL:** `http://localhost:8080/api`
+**Base URL:** `http://localhost:8081/api`
+
+**Última actualización:** 16 de Diciembre 2025
+
+---
+
+## ✅ Health Check
+
+### Verificar Estado del Servidor
+Endpoint para verificar que la API está funcionando correctamente.
+
+*   **Método:** `GET`
+*   **Endpoint:** `/health`
+*   **URL completa:** `http://localhost:8081/api/health`
+*   **Respuesta (200 OK):**
+    ```json
+    {
+      "status": "UP",
+      "message": "BataPeru API está funcionando correctamente"
+    }
+    ```
+
+### Test Simple
+*   **Método:** `GET`
+*   **Endpoint:** `/test`
+*   **URL completa:** `http://localhost:8081/api/test`
+*   **Respuesta (200 OK):** `"API funcionando correctamente"`
 
 ---
 
@@ -13,11 +39,13 @@ Crea una cuenta para un cliente nuevo.
 
 *   **Método:** `POST`
 *   **Endpoint:** `/auth/registro`
+*   **URL completa:** `http://localhost:8081/api/auth/registro`
+*   **Headers:** `Content-Type: application/json`
 *   **Body (JSON):**
     ```json
     {
       "email": "juan.perez@example.com",
-      "password": "password123",
+      "contrasenaHash": "password123",
       "nombres": "Juan",
       "apellidos": "Perez",
       "telefono": "999888777"
@@ -28,18 +56,26 @@ Crea una cuenta para un cliente nuevo.
     {
       "id": 1,
       "email": "juan.perez@example.com",
+      "contrasenaHash": "password123",
       "nombres": "Juan",
       "apellidos": "Perez",
       "telefono": "999888777",
-      "fechaRegistro": "2023-10-27T10:00:00Z"
+      "fechaRegistro": "2025-12-16T22:00:00",
+      "direccionesIds": null,
+      "pedidosIds": null
     }
     ```
+*   **Errores posibles:**
+    *   `400 Bad Request`: "El email es obligatorio" o "La contraseña es obligatoria"
+    *   `400 Bad Request`: "El correo electrónico ya está en uso"
 
 ### 2. Iniciar Sesión
 Valida credenciales y retorna los datos del usuario.
 
 *   **Método:** `POST`
 *   **Endpoint:** `/auth/login`
+*   **URL completa:** `http://localhost:8081/api/auth/login`
+*   **Headers:** `Content-Type: application/json`
 *   **Body (JSON):**
     ```json
     {
@@ -47,8 +83,27 @@ Valida credenciales y retorna los datos del usuario.
       "password": "password123"
     }
     ```
-*   **Respuesta (200 OK):** Retorna el objeto `UsuarioDTO` (igual que en registro).
-*   **Error (401 Unauthorized):** Credenciales incorrectas.
+*   **Respuesta (200 OK):**
+    ```json
+    {
+      "id": 1,
+      "email": "juan.perez@example.com",
+      "contrasenaHash": "password123",
+      "nombres": "Juan",
+      "apellidos": "Perez",
+      "telefono": "999888777",
+      "fechaRegistro": "2025-12-16T22:00:00",
+      "direccionesIds": [1, 2],
+      "pedidosIds": [101, 102]
+    }
+    ```
+*   **Error (401 Unauthorized):** `"Credenciales inválidas"`
+
+### 📝 Notas sobre el UsuarioDTO:
+*   **Campo `contrasenaHash`:** Se usa tanto para registro como para login. 
+    *   ⚠️ **Advertencia de Seguridad:** Actualmente la contraseña se almacena en texto plano. Se recomienda implementar BCrypt para hash de contraseñas en producción.
+*   **Campo `fechaRegistro`:** Se genera automáticamente en el servidor al crear el usuario.
+*   **Campos `direccionesIds` y `pedidosIds`:** Listas de IDs relacionados. Serán `null` para usuarios recién creados.
 
 ---
 
@@ -194,6 +249,103 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
 
 ---
 
+## 🏷️ Categorías (`/categorias`)
+
+### 1. Listar Todas las Categorías
+*   **Método:** `GET`
+*   **Endpoint:** `/categorias`
+*   **URL completa:** `http://localhost:8081/api/categorias`
+*   **Respuesta (200 OK):**
+    ```json
+    [
+      {
+        "id": 1,
+        "nombre": "Zapatillas",
+        "descripcion": "Calzado deportivo y casual",
+        "imagenUrl": "https://ejemplo.com/zapatillas.jpg",
+        "activo": true
+      },
+      {
+        "id": 2,
+        "nombre": "Sandalias",
+        "descripcion": "Calzado fresco para verano",
+        "imagenUrl": "https://ejemplo.com/sandalias.jpg",
+        "activo": true
+      }
+    ]
+    ```
+
+### 2. Crear Nueva Categoría
+*   **Método:** `POST`
+*   **Endpoint:** `/categorias`
+*   **URL completa:** `http://localhost:8081/api/categorias`
+*   **Headers:** `Content-Type: application/json`
+*   **Body (JSON):**
+    ```json
+    {
+      "nombre": "Botas",
+      "descripcion": "Calzado para temporadas frías",
+      "imagenUrl": "https://ejemplo.com/botas.jpg",
+      "activo": true
+    }
+    ```
+*   **Respuesta (200 OK):** Retorna el objeto `CategoriaDTO` creado con su ID.
+
+### 3. Eliminar Categoría
+*   **Método:** `DELETE`
+*   **Endpoint:** `/categorias/{id}`
+*   **URL completa:** `http://localhost:8081/api/categorias/1`
+*   **Respuesta (204 No Content):** Sin contenido en el body.
+
+---
+
+## 🏢 Marcas (`/marcas`)
+
+### 1. Listar Todas las Marcas
+*   **Método:** `GET`
+*   **Endpoint:** `/marcas`
+*   **URL completa:** `http://localhost:8081/api/marcas`
+*   **Respuesta (200 OK):**
+    ```json
+    [
+      {
+        "id": 1,
+        "nombre": "Bata",
+        "logoUrl": "https://ejemplo.com/logo-bata.png",
+        "activo": true
+      },
+      {
+        "id": 2,
+        "nombre": "North Star",
+        "logoUrl": "https://ejemplo.com/logo-northstar.png",
+        "activo": true
+      }
+    ]
+    ```
+
+### 2. Crear Nueva Marca
+*   **Método:** `POST`
+*   **Endpoint:** `/marcas`
+*   **URL completa:** `http://localhost:8081/api/marcas`
+*   **Headers:** `Content-Type: application/json`
+*   **Body (JSON):**
+    ```json
+    {
+      "nombre": "Bubblegummers",
+      "logoUrl": "https://ejemplo.com/logo-bubblegummers.png",
+      "activo": true
+    }
+    ```
+*   **Respuesta (200 OK):** Retorna el objeto `MarcaDTO` creado con su ID.
+
+### 3. Eliminar Marca
+*   **Método:** `DELETE`
+*   **Endpoint:** `/marcas/{id}`
+*   **URL completa:** `http://localhost:8081/api/marcas/1`
+*   **Respuesta (204 No Content):** Sin contenido en el body.
+
+---
+
 ## 🏷️ Categorías y Marcas
 
 ### Categorías (`/categorias`)
@@ -213,3 +365,84 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
 1.  **Manejo de IDs:** La mayoría de las relaciones en los DTOs se manejan por IDs (ej. `marcaId`, `variantesIds`). Si necesitas mostrar el nombre de la marca en la lista de productos, deberás cruzar la información con la lista de marcas o hacer una petición adicional si el DTO no incluye el nombre explícito.
 2.  **Variantes:** Un producto tiene "Variantes" (Talla + Color + Stock). Al comprar, debes enviar el ID de la **Variante**, no del Producto padre.
 3.  **Imágenes:** El endpoint de productos devuelve una lista de IDs de imágenes (`imagenesIds`). Deberás tener una lógica para recuperar las URLs de esas imágenes si no están embebidas.
+
+---
+
+## 🔄 Cambios Recientes (16 de Diciembre 2025)
+
+### ✅ Implementaciones Nuevas:
+
+1. **Health Check Endpoints:**
+   - Agregado `/api/health` para verificar el estado del servidor
+   - Agregado `/api/test` para pruebas rápidas
+
+2. **Actualización del UsuarioDTO:**
+   - Campo `password` renombrado a `contrasenaHash` para mayor claridad
+   - Agregado campo `direccionesIds` (lista de IDs de direcciones del usuario)
+   - Agregado campo `pedidosIds` (lista de IDs de pedidos del usuario)
+   - Campo `fechaRegistro` ahora se genera automáticamente en el servidor
+
+3. **Mejoras en Autenticación:**
+   - Mensajes de error más descriptivos en registro y login
+   - Validación de campos obligatorios (email y contraseña)
+   - Respuesta de error personalizada cuando las credenciales son inválidas
+
+4. **Configuración CORS:**
+   - La API ahora permite peticiones desde cualquier origen
+   - Métodos permitidos: GET, POST, PUT, DELETE, OPTIONS
+   - Headers permitidos: todos (*)
+
+5. **Correcciones en Servicios:**
+   - `MarcaService`: Métodos renombrados a español (`obtenerTodos()`, `crear()`, `eliminar()`)
+   - `UsuarioRepository`: Método actualizado a `findByEmailAndContrasenaHash()`
+   - MapStruct mappers regenerados correctamente
+
+### 🔒 Notas de Seguridad:
+
+⚠️ **IMPORTANTE:** Las contraseñas actualmente se almacenan en texto plano. Para un entorno de producción se recomienda:
+- Implementar BCrypt para hash de contraseñas
+- Implementar JWT para autenticación con tokens
+- Agregar validación de complejidad de contraseñas
+- Agregar rate limiting para prevenir ataques de fuerza bruta
+- Implementar refresh tokens para sesiones persistentes
+
+### 📝 Próximas Mejoras Recomendadas:
+
+1. Implementar paginación en endpoints que retornan listas
+2. Agregar filtros y búsqueda avanzada en productos
+3. Implementar caché para mejorar rendimiento
+4. Agregar validaciones con anotaciones (@Valid, @NotNull, @Email, etc.)
+5. Documentar con Swagger/OpenAPI para exploración interactiva
+6. Implementar DTOs de respuesta separados de DTOs de entrada
+7. Agregar auditoria (createdBy, modifiedBy, timestamps)
+
+---
+
+## 🛠️ Configuración del Servidor
+
+**Puerto:** 8081  
+**Base de Datos:** MySQL - BataPeruDB  
+**Puerto MySQL:** 3306  
+**Usuario:** root  
+**JPA:** Hibernate con actualización automática del esquema
+
+### Variables de Entorno (application.properties):
+```properties
+spring.application.name=BataPeru
+server.port=8081
+spring.datasource.url=jdbc:mysql://localhost:3306/BataPeruDB
+spring.datasource.username=root
+spring.datasource.password=123456
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+---
+
+## 📞 Soporte y Contacto
+
+Para reportar problemas o sugerencias sobre la API, contactar al equipo de desarrollo.
+
+**Versión de la API:** 1.0.0  
+**Última actualización:** 16 de Diciembre 2025
+

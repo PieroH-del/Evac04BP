@@ -4,43 +4,50 @@ import com.example.BataPeru.dto.ComentarioDTO;
 import com.example.BataPeru.entity.Comentario;
 import com.example.BataPeru.mapper.ComentarioMapper;
 import com.example.BataPeru.repository.ComentarioRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ComentarioService {
 
-    private final ComentarioRepository comentarioRepository;
-    private final ComentarioMapper comentarioMapper;
+    @Autowired
+    private ComentarioRepository comentarioRepository;
 
-    public List<ComentarioDTO> findByProductoId(Long productoId) {
-        return comentarioRepository.findByProductoId(productoId).stream()
+    @Autowired
+    private ComentarioMapper comentarioMapper;
+
+    public List<ComentarioDTO> obtenerTodos() {
+        return comentarioRepository.findAll().stream()
                 .map(comentarioMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public Optional<ComentarioDTO> findById(Long id) {
-        return comentarioRepository.findById(id).map(comentarioMapper::toDTO);
+    public ComentarioDTO obtenerPorId(Long id) {
+        Comentario comentario = comentarioRepository.findById(id).orElse(null);
+        return comentario != null ? comentarioMapper.toDTO(comentario) : null;
     }
 
-    @Transactional
-    public ComentarioDTO save(ComentarioDTO comentarioDTO) {
+    public ComentarioDTO crear(ComentarioDTO comentarioDTO) {
         Comentario comentario = comentarioMapper.toEntity(comentarioDTO);
-        Comentario savedComentario = comentarioRepository.save(comentario);
-        return comentarioMapper.toDTO(savedComentario);
+        Comentario guardado = comentarioRepository.save(comentario);
+        return comentarioMapper.toDTO(guardado);
     }
 
-    @Transactional
-    public void delete(Long id) {
-        if (!comentarioRepository.existsById(id)) {
-            throw new RuntimeException("Comentario no encontrado con ID: " + id);
+    public ComentarioDTO actualizar(Long id, ComentarioDTO comentarioDTO) {
+        Comentario comentario = comentarioRepository.findById(id).orElse(null);
+        if (comentario != null) {
+            comentario.setPuntuacion(comentarioDTO.getPuntuacion());
+            comentario.setComentario(comentarioDTO.getComentario());
+            Comentario actualizado = comentarioRepository.save(comentario);
+            return comentarioMapper.toDTO(actualizado);
         }
+        return null;
+    }
+
+    public void eliminar(Long id) {
         comentarioRepository.deleteById(id);
     }
 }

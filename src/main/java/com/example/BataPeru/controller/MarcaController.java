@@ -17,17 +17,17 @@ public class MarcaController {
 
     @GetMapping
     public ResponseEntity<List<MarcaDTO>> listarMarcas() {
-        return ResponseEntity.ok(marcaService.findAll());
+        return ResponseEntity.ok(marcaService.obtenerTodos());
     }
 
     @PostMapping
     public ResponseEntity<MarcaDTO> crearMarca(@RequestBody MarcaDTO marcaDTO) {
-        return ResponseEntity.ok(marcaService.save(marcaDTO));
+        return ResponseEntity.ok(marcaService.crear(marcaDTO));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarMarca(@PathVariable Long id) {
-        marcaService.delete(id);
+        marcaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 }

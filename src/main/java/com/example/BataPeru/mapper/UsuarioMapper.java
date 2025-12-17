@@ -18,6 +18,10 @@ public interface UsuarioMapper {
     @Mapping(source = "pedidos", target = "pedidosIds", qualifiedByName = "pedidosToIds")
     UsuarioDTO toDTO(Usuario entity);
 
+    @Mapping(target = "direcciones", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
+    @Mapping(target = "comentarios", ignore = true)
+    @Mapping(target = "fechaRegistro", expression = "java(java.time.LocalDateTime.now())")
     Usuario toEntity(UsuarioDTO dto);
 
     @Named("direccionesToIds")

@@ -4,43 +4,51 @@ import com.example.BataPeru.dto.MarcaDTO;
 import com.example.BataPeru.entity.Marca;
 import com.example.BataPeru.mapper.MarcaMapper;
 import com.example.BataPeru.repository.MarcaRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class MarcaService {
 
-    private final MarcaRepository marcaRepository;
-    private final MarcaMapper marcaMapper;
+    @Autowired
+    private MarcaRepository marcaRepository;
 
-    public List<MarcaDTO> findAll() {
+    @Autowired
+    private MarcaMapper marcaMapper;
+
+    public List<MarcaDTO> obtenerTodos() {
         return marcaRepository.findAll().stream()
                 .map(marcaMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public Optional<MarcaDTO> findById(Long id) {
-        return marcaRepository.findById(id).map(marcaMapper::toDTO);
+    public MarcaDTO obtenerPorId(Long id) {
+        Marca marca = marcaRepository.findById(id).orElse(null);
+        return marca != null ? marcaMapper.toDTO(marca) : null;
     }
 
-    @Transactional
-    public MarcaDTO save(MarcaDTO marcaDTO) {
+    public MarcaDTO crear(MarcaDTO marcaDTO) {
         Marca marca = marcaMapper.toEntity(marcaDTO);
-        Marca savedMarca = marcaRepository.save(marca);
-        return marcaMapper.toDTO(savedMarca);
+        Marca guardado = marcaRepository.save(marca);
+        return marcaMapper.toDTO(guardado);
     }
 
-    @Transactional
-    public void delete(Long id) {
-        if (!marcaRepository.existsById(id)) {
-            throw new RuntimeException("Marca no encontrada con ID: " + id);
+    public MarcaDTO actualizar(Long id, MarcaDTO marcaDTO) {
+        Marca marca = marcaRepository.findById(id).orElse(null);
+        if (marca != null) {
+            marca.setNombre(marcaDTO.getNombre());
+            marca.setLogoUrl(marcaDTO.getLogoUrl());
+            marca.setActivo(marcaDTO.getActivo());
+            Marca actualizado = marcaRepository.save(marca);
+            return marcaMapper.toDTO(actualizado);
         }
+        return null;
+    }
+
+    public void eliminar(Long id) {
         marcaRepository.deleteById(id);
     }
 }
