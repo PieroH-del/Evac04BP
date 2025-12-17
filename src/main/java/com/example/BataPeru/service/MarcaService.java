@@ -4,6 +4,8 @@ import com.example.BataPeru.dto.MarcaDTO;
 import com.example.BataPeru.entity.Marca;
 import com.example.BataPeru.mapper.MarcaMapper;
 import com.example.BataPeru.repository.MarcaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MarcaService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MarcaService.class);
 
     @Autowired
     private MarcaRepository marcaRepository;
@@ -34,19 +38,26 @@ public class MarcaService {
 
     @Transactional
     public MarcaDTO crear(MarcaDTO marcaDTO) {
-        Marca marca = marcaMapper.toEntity(marcaDTO);
-        marca.setFechaCreacion(LocalDateTime.now());
-        Marca guardado = marcaRepository.save(marca);
+        try {
+            logger.info("Intentando crear marca: {}", marcaDTO.getNombre());
+            Marca marca = marcaMapper.toEntity(marcaDTO);
+            logger.debug("Marca mapeada a entidad: {}", marca);
 
-        MarcaDTO resultado = new MarcaDTO();
-        resultado.setId(guardado.getId());
-        resultado.setNombre(guardado.getNombre());
-        resultado.setLogoUrl(guardado.getLogoUrl());
-        resultado.setActivo(guardado.getActivo());
-        resultado.setFechaCreacion(guardado.getFechaCreacion());
-        resultado.setProductosIds(List.of()); // Nueva marca no tiene productos
+            marca.setFechaCreacion(LocalDateTime.now());
+            // Si activo es null, establecer true por defecto
+            if (marca.getActivo() == null) {
+                marca.setActivo(true);
+            }
 
-        return resultado;
+            logger.debug("Guardando marca en la base de datos...");
+            Marca guardado = marcaRepository.save(marca);
+            logger.info("Marca creada exitosamente con ID: {}", guardado.getId());
+
+            return marcaMapper.toDTO(guardado);
+        } catch (Exception e) {
+            logger.error("Error al crear marca: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional

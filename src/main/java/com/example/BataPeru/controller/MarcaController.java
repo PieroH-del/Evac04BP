@@ -22,6 +22,9 @@ public class MarcaController {
 
     @PostMapping
     public ResponseEntity<MarcaDTO> crearMarca(@RequestBody MarcaDTO marcaDTO) {
+        if (marcaDTO.getNombre() == null || marcaDTO.getNombre().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre de la marca es obligatorio");
+        }
         return ResponseEntity.ok(marcaService.crear(marcaDTO));
     }
 
