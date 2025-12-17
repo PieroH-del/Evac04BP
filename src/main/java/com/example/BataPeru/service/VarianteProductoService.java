@@ -28,12 +28,14 @@ public class VarianteProductoService {
     private final TallaRepository tallaRepository;
     private final ColorRepository colorRepository;
 
+    @Transactional(readOnly = true)
     public List<VarianteProductoDTO> findAll() {
         return varianteProductoRepository.findAll().stream()
                 .map(varianteProductoMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<VarianteProductoDTO> findById(Long id) {
         return varianteProductoRepository.findById(id)
                 .map(varianteProductoMapper::toDTO);

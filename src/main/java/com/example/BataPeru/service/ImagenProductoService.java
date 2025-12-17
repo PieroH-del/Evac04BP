@@ -19,12 +19,14 @@ public class ImagenProductoService {
     private final ImagenProductoRepository imagenProductoRepository;
     private final ImagenProductoMapper imagenProductoMapper;
 
+    @Transactional(readOnly = true)
     public List<ImagenProductoDTO> findAll() {
         return imagenProductoRepository.findAll().stream()
                 .map(imagenProductoMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<ImagenProductoDTO> findById(Long id) {
         return imagenProductoRepository.findById(id).map(imagenProductoMapper::toDTO);
     }

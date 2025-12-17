@@ -6,6 +6,7 @@ import com.example.BataPeru.mapper.DetallePedidoMapper;
 import com.example.BataPeru.repository.DetallePedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,23 +20,27 @@ public class DetallePedidoService {
     @Autowired
     private DetallePedidoMapper detallePedidoMapper;
 
+    @Transactional(readOnly = true)
     public List<DetallePedidoDTO> obtenerTodos() {
         return detallePedidoRepository.findAll().stream()
                 .map(detallePedidoMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public DetallePedidoDTO obtenerPorId(Long id) {
         DetallePedido detalle = detallePedidoRepository.findById(id).orElse(null);
         return detalle != null ? detallePedidoMapper.toDTO(detalle) : null;
     }
 
+    @Transactional
     public DetallePedidoDTO crear(DetallePedidoDTO detallePedidoDTO) {
         DetallePedido detalle = detallePedidoMapper.toEntity(detallePedidoDTO);
         DetallePedido guardado = detallePedidoRepository.save(detalle);
         return detallePedidoMapper.toDTO(guardado);
     }
 
+    @Transactional
     public DetallePedidoDTO actualizar(Long id, DetallePedidoDTO detallePedidoDTO) {
         DetallePedido detalle = detallePedidoRepository.findById(id).orElse(null);
         if (detalle != null) {
@@ -47,6 +52,7 @@ public class DetallePedidoService {
         return null;
     }
 
+    @Transactional
     public void eliminar(Long id) {
         detallePedidoRepository.deleteById(id);
     }

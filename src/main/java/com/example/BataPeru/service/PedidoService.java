@@ -70,10 +70,12 @@ public class PedidoService {
         return pedidoMapper.toDTO(pedidoFinal);
     }
 
+    @Transactional(readOnly = true)
     public Optional<PedidoDTO> findById(Long id) {
         return pedidoRepository.findById(id).map(pedidoMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public List<PedidoDTO> findByUsuarioId(Long usuarioId) {
         return pedidoRepository.findByUsuarioId(usuarioId).stream()
                 .map(pedidoMapper::toDTO)

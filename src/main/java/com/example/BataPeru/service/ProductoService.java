@@ -25,16 +25,19 @@ public class ProductoService {
     private final MarcaRepository marcaRepository;
     private final CategoriaRepository categoriaRepository;
 
+    @Transactional(readOnly = true)
     public List<ProductoDTO> findAll(){
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<ProductoDTO> findById(Long id){
         return repository.findById(id).map(mapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductoDTO> findByCategoria(Long categoriaId) {
         return repository.findByCategoriaId(categoriaId).stream()
                 .map(mapper::toDTO)
@@ -58,6 +61,7 @@ public class ProductoService {
         }
 
         Producto productoSave = repository.save(productoEntity);
+        // El mapper se usa dentro de la transacción, por lo que las colecciones lazy se cargan correctamente
         return mapper.toDTO(productoSave);
     }
 
@@ -86,6 +90,7 @@ public class ProductoService {
         }
 
         Producto updatedProducto = repository.save(producto);
+        // El mapper se usa dentro de la transacción, por lo que las colecciones lazy se cargan correctamente
         return mapper.toDTO(updatedProducto);
     }
 

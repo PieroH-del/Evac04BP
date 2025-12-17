@@ -22,6 +22,7 @@ public class DireccionService {
     private final UsuarioRepository usuarioRepository;
     private final DireccionMapper direccionMapper;
 
+    @Transactional(readOnly = true)
     public List<DireccionDTO> obtenerDireccionesPorUsuario(Long usuarioId) {
         return direccionRepository.findByUsuarioId(usuarioId)
                 .stream()
@@ -98,11 +99,13 @@ public class DireccionService {
     }
     
     // Otros métodos que ya estaban bien
+    @Transactional(readOnly = true)
     public Optional<DireccionDTO> obtenerDireccionPrincipal(Long usuarioId) {
         return direccionRepository.findByUsuarioIdAndEsPrincipalTrue(usuarioId)
                 .map(direccionMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public Optional<DireccionDTO> obtenerDireccionPorId(Long id) {
         return direccionRepository.findById(id)
                 .map(direccionMapper::toDTO);
