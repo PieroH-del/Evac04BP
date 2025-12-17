@@ -31,7 +31,12 @@ public class ProductoController {
     public ResponseEntity<List<ProductoDTO>> listarProductosPorCategoria(@PathVariable Long categoriaId) {
         return ResponseEntity.ok(productoService.findByCategoria(categoriaId));
     }
-    
+
+    @GetMapping("/genero/{genero}")
+    public ResponseEntity<List<ProductoDTO>> listarProductosPorGenero(@PathVariable String genero) {
+        return ResponseEntity.ok(productoService.findByGenero(genero));
+    }
+
     // Endpoints para administradores (crear, actualizar, eliminar)
     
     @PostMapping

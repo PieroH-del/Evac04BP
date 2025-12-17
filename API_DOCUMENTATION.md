@@ -4,7 +4,7 @@ Esta documentación detalla los endpoints disponibles en el backend para el clon
 
 **Base URL:** `http://localhost:8081/api`
 
-**Última actualización:** 16 de Diciembre 2025
+**Última actualización:** 17 de Diciembre 2025
 
 ---
 
@@ -148,7 +148,17 @@ Lista productos que pertenecen a una categoría específica (ej. "Zapatillas", "
 *   **Endpoint:** `/productos/categoria/{categoriaId}`
 *   **Ejemplo:** `/productos/categoria/2`
 
-### 4. Crear Producto (Admin)
+### 4. Filtrar por Género
+Lista productos de un género específico (HOMBRE, MUJER, UNISEX, NIÑO, NIÑA).
+
+*   **Método:** `GET`
+*   **Endpoint:** `/productos/genero/{genero}`
+*   **URL completa:** `http://localhost:8081/api/productos/genero/HOMBRE`
+*   **Ejemplo:** `/productos/genero/MUJER`
+*   **Nota:** La búsqueda es case-insensitive (puede ser "hombre", "Hombre", "HOMBRE")
+*   **Respuesta (200 OK):** Lista de objetos `ProductoDTO` filtrados por género.
+
+### 5. Crear Producto (Admin)
 *   **Método:** `POST`
 *   **Endpoint:** `/productos`
 *   **Body (JSON):**
@@ -368,9 +378,48 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
 
 ---
 
-## 🔄 Cambios Recientes (16 de Diciembre 2025)
+## 🔄 Cambios Recientes
 
-### ✅ Implementaciones Nuevas:
+### 🆕 17 de Diciembre 2025 - Correcciones de LazyInitializationException y Nuevas Funcionalidades:
+
+1. **Solución Global de LazyInitializationException:**
+   - ✅ Agregado `GlobalExceptionHandler` para manejo centralizado de errores
+   - ✅ Todos los métodos de lectura ahora usan `@Transactional(readOnly = true)`
+   - ✅ Métodos de creación crean DTOs manualmente para evitar problemas de sesión
+   - Servicios corregidos: `MarcaService`, `CategoriaService`, `ColorService`, `TallaService`, `UsuarioService`, `ProductoService`, `DireccionService`, `PedidoService`, `ComentarioService`, `VarianteProductoService`, `ImagenProductoService`, `DetallePedidoService`
+
+2. **Nuevo Endpoint - Filtrado de Productos por Género:**
+   - `GET /productos/genero/{genero}` - Filtra productos por género
+   - Búsqueda case-insensitive (acepta HOMBRE, hombre, Hombre, etc.)
+   - Géneros válidos: HOMBRE, MUJER, UNISEX, NIÑO, NIÑA
+
+3. **Mejoras en el Manejo de Errores:**
+   - Respuestas JSON estructuradas para todos los errores
+   - Incluye timestamp, status, error type, message, path y details
+   - Manejo específico para:
+     - `DataIntegrityViolationException` (400) - Violaciones de unicidad o constraints
+     - `IllegalArgumentException` (400) - Argumentos inválidos
+     - `NullPointerException` (500) - Valores nulos inesperados
+     - `Exception` genérica (500) - Otros errores
+
+4. **Validaciones Mejoradas:**
+   - Validación de nombre obligatorio en `MarcaController`
+   - Logging detallado en `MarcaService` para diagnóstico
+   - Valor por defecto `true` para campo `activo` si es null
+
+5. **Ejemplos de Respuestas de Error:**
+   ```json
+   {
+     "timestamp": "2025-12-17T07:57:08.192557879",
+     "status": 500,
+     "error": "Error interno del servidor",
+     "message": "Cannot lazily initialize collection...",
+     "details": "org.hibernate.LazyInitializationException",
+     "path": "/api/marcas"
+   }
+   ```
+
+### ✅ 16 de Diciembre 2025 - Implementaciones Iniciales:
 
 1. **Health Check Endpoints:**
    - Agregado `/api/health` para verificar el estado del servidor
@@ -408,13 +457,16 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
 
 ### 📝 Próximas Mejoras Recomendadas:
 
-1. Implementar paginación en endpoints que retornan listas
-2. Agregar filtros y búsqueda avanzada en productos
-3. Implementar caché para mejorar rendimiento
-4. Agregar validaciones con anotaciones (@Valid, @NotNull, @Email, etc.)
-5. Documentar con Swagger/OpenAPI para exploración interactiva
-6. Implementar DTOs de respuesta separados de DTOs de entrada
-7. Agregar auditoria (createdBy, modifiedBy, timestamps)
+1. ✅ ~~Agregar filtros por género en productos~~ (Implementado)
+2. Implementar paginación en endpoints que retornan listas grandes
+3. Agregar más filtros avanzados en productos (precio, marca, material)
+4. Implementar caché para mejorar rendimiento
+5. Agregar validaciones con anotaciones (@Valid, @NotNull, @Email, etc.)
+6. Documentar con Swagger/OpenAPI para exploración interactiva
+7. Implementar DTOs de respuesta separados de DTOs de entrada
+8. Agregar auditoria (createdBy, modifiedBy, timestamps)
+9. Implementar búsqueda de texto completo en productos
+10. Agregar endpoints de estadísticas para el panel de administración
 
 ---
 
@@ -443,6 +495,6 @@ spring.jpa.show-sql=true
 
 Para reportar problemas o sugerencias sobre la API, contactar al equipo de desarrollo.
 
-**Versión de la API:** 1.0.0  
-**Última actualización:** 16 de Diciembre 2025
+**Versión de la API:** 1.1.0  
+**Última actualización:** 17 de Diciembre 2025
 

@@ -44,6 +44,13 @@ public class ProductoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> findByGenero(String genero) {
+        return repository.findByGeneroIgnoreCase(genero).stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ProductoDTO add(ProductoDTO productoDTO){
         Producto productoEntity = mapper.toEntity(productoDTO);
