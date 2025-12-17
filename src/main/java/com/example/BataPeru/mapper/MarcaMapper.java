@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +17,13 @@ public interface MarcaMapper {
     @Mapping(source = "productos", target = "productosIds", qualifiedByName = "productosToIds")
     MarcaDTO toDTO(Marca entity);
 
+    @Mapping(target = "productos", ignore = true)
     Marca toEntity(MarcaDTO dto);
 
     @Named("productosToIds")
     default List<Long> productosToIds(List<Producto> productos) {
         if (productos == null) {
-            return null;
+            return Collections.emptyList();
         }
         return productos.stream()
                 .map(Producto::getId)
