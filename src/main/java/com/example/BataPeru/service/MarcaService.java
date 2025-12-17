@@ -25,12 +25,14 @@ public class MarcaService {
     @Autowired
     private MarcaMapper marcaMapper;
 
+    @Transactional(readOnly = true)
     public List<MarcaDTO> obtenerTodos() {
         return marcaRepository.findAll().stream()
                 .map(marcaMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public MarcaDTO obtenerPorId(Long id) {
         Marca marca = marcaRepository.findById(id).orElse(null);
         return marca != null ? marcaMapper.toDTO(marca) : null;
@@ -53,7 +55,16 @@ public class MarcaService {
             Marca guardado = marcaRepository.save(marca);
             logger.info("Marca creada exitosamente con ID: {}", guardado.getId());
 
-            return marcaMapper.toDTO(guardado);
+            // Una marca recién creada no tiene productos asociados
+            MarcaDTO resultado = new MarcaDTO();
+            resultado.setId(guardado.getId());
+            resultado.setNombre(guardado.getNombre());
+            resultado.setLogoUrl(guardado.getLogoUrl());
+            resultado.setActivo(guardado.getActivo());
+            resultado.setFechaCreacion(guardado.getFechaCreacion());
+            resultado.setProductosIds(List.of()); // Nueva marca sin productos
+
+            return resultado;
         } catch (Exception e) {
             logger.error("Error al crear marca: {}", e.getMessage(), e);
             throw e;
