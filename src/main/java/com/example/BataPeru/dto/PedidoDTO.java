@@ -19,6 +19,6 @@ public class PedidoDTO {
     private Long direccionEnvioId;
     private String metodoPago;
     private LocalDateTime fechaPedido;
-    private List<Long> detallesIds;
+    private List<DetallePedidoDTO> detalles;
 }
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setUsuario(usuario);
         pedido.setEstado("PENDIENTE");
-        pedido.setFechaPedido(Instant.now()); // Corregido a Instant
+        pedido.setFechaPedido(LocalDateTime.now());
         pedido.setDireccionEnvioId(pedidoDTO.getDireccionEnvioId());
         pedido.setMetodoPago(pedidoDTO.getMetodoPago());
 
