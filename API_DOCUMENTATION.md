@@ -120,14 +120,15 @@ Obtiene el catálogo completo.
       {
         "id": 10,
         "nombre": "Zapatilla Urbana North Star",
+        "urlImg": "https://ejemplo.com/imagen.jpg",
         "descripcion": "Zapatilla cómoda para uso diario.",
         "precioRegular": 129.90,
         "genero": "HOMBRE",
         "material": "Lona",
         "marcaId": 1,
         "categoriaId": 2,
-        "imagenesIds": [101, 102],
-        "variantesIds": [501, 502]
+        "activo": true,
+        "fechaCreacion": "2025-12-17T10:00:00"
       },
       ...
     ]
@@ -165,6 +166,7 @@ Lista productos de un género específico (HOMBRE, MUJER, UNISEX, NIÑO, NIÑA).
     ```json
     {
       "nombre": "Mocasín Cuero",
+      "urlImg": "https://ejemplo.com/mocasin.jpg",
       "descripcion": "Elegante y formal",
       "precioRegular": 249.90,
       "genero": "HOMBRE",
@@ -180,7 +182,7 @@ Lista productos de un género específico (HOMBRE, MUJER, UNISEX, NIÑO, NIÑA).
 ## 🛒 Pedidos (`/pedidos`)
 
 ### 1. Crear Pedido (Checkout)
-Registra una compra. **Nota:** Esto descuenta automáticamente el stock de las variantes seleccionadas.
+Registra una compra.
 
 *   **Método:** `POST`
 *   **Endpoint:** `/pedidos`
@@ -192,12 +194,14 @@ Registra una compra. **Nota:** Esto descuenta automáticamente el stock de las v
       "metodoPago": "TARJETA_CREDITO",
       "detalles": [
         {
-          "varianteProductoId": 501,
-          "cantidad": 1
+          "productoId": 10,
+          "cantidad": 1,
+          "precioUnitario": 129.90
         },
         {
-          "varianteProductoId": 505,
-          "cantidad": 2
+          "productoId": 15,
+          "cantidad": 2,
+          "precioUnitario": 89.90
         }
       ]
     }
@@ -372,15 +376,42 @@ Cambia el estado del pedido (ej. PENDIENTE -> ENVIADO).
 
 ## ⚠️ Notas para Frontend
 
-1.  **Manejo de IDs:** La mayoría de las relaciones en los DTOs se manejan por IDs (ej. `marcaId`, `variantesIds`). Si necesitas mostrar el nombre de la marca en la lista de productos, deberás cruzar la información con la lista de marcas o hacer una petición adicional si el DTO no incluye el nombre explícito.
-2.  **Variantes:** Un producto tiene "Variantes" (Talla + Color + Stock). Al comprar, debes enviar el ID de la **Variante**, no del Producto padre.
-3.  **Imágenes:** El endpoint de productos devuelve una lista de IDs de imágenes (`imagenesIds`). Deberás tener una lógica para recuperar las URLs de esas imágenes si no están embebidas.
+1.  **Manejo de IDs:** La mayoría de las relaciones en los DTOs se manejan por IDs (ej. `marcaId`, `categoriaId`). Si necesitas mostrar el nombre de la marca en la lista de productos, deberás cruzar la información con la lista de marcas o hacer una petición adicional si el DTO no incluye el nombre explícito.
+2.  **Productos Simplificados:** Cada producto tiene una imagen principal (`urlImg`) y no hay variantes de talla/color. La compra se hace directamente con el ID del producto.
+3.  **Imágenes:** Cada producto tiene una URL de imagen directa en el campo `urlImg`.
 
 ---
 
 ## 🔄 Cambios Recientes
 
-### 🆕 17 de Diciembre 2025 - Correcciones de LazyInitializationException y Nuevas Funcionalidades:
+### 🆕 17 de Diciembre 2025 - Simplificación del Modelo de Datos:
+
+1. **Eliminación de Entidades Complejas:**
+   - ❌ Eliminada entidad `VarianteProducto` (tallas y colores)
+   - ❌ Eliminada entidad `Talla`
+   - ❌ Eliminada entidad `Color`
+   - ❌ Eliminada entidad `ImagenProducto`
+   - ✅ Ahora cada producto es una unidad simple con una imagen directa
+
+2. **Simplificación del Modelo de Productos:**
+   - Agregado campo `urlImg` directamente en `Producto`
+   - Productos ya no tienen variantes de talla/color
+   - Eliminado control de stock (ya no hay inventario por variante)
+   - Estructura más simple y directa
+
+3. **Actualización de Pedidos:**
+   - `DetallePedido` ahora referencia directamente a `Producto` (no a `VarianteProducto`)
+   - Campo `varianteProductoId` reemplazado por `productoId` en DTOs
+   - Eliminada lógica de descuento de stock automático
+
+4. **Archivos Eliminados:**
+   - Services: `ColorService`, `TallaService`, `VarianteProductoService`, `ImagenProductoService`
+   - Repositories: `ColorRepository`, `TallaRepository`, `VarianteProductoRepository`, `ImagenProductoRepository`
+   - DTOs: `ColorDTO`, `TallaDTO`, `VarianteProductoDTO`, `ImagenProductoDTO`
+   - Mappers: `ColorMapper`, `TallaMapper`, `VarianteProductoMapper`, `ImagenProductoMapper`
+   - Entities: `Color`, `Talla`, `VarianteProducto`, `ImagenProducto`
+
+### 🔧 17 de Diciembre 2025 - Correcciones de LazyInitializationException y Nuevas Funcionalidades:
 
 1. **Solución Global de LazyInitializationException:**
    - ✅ Agregado `GlobalExceptionHandler` para manejo centralizado de errores
